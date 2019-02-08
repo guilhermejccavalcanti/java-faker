@@ -6,7 +6,6 @@ import com.github.javafaker.service.FakeValuesServiceInterface;
 import com.github.javafaker.service.RandomService;
 import org.apache.commons.lang.WordUtils;
 import org.apache.commons.lang.reflect.MethodUtils;
-
 import java.lang.reflect.Proxy;
 import java.util.Locale;
 import java.util.Random;
@@ -18,23 +17,41 @@ import java.util.Random;
  * @author ren
  */
 public class Faker implements Resolver {
+
     private final RandomService randomService;
+
     private final FakeValuesService fakeValuesService;
+
     private final App app;
+
     private final Lorem lorem;
+
     private final Name name;
+
     private final Number number;
+
     private final Internet internet;
+
     private final PhoneNumber phoneNumber;
+
     private final Address address;
+
     private final Business business;
+
     private final Book book;
+
     private final Color color;
+
     private final Company company;
+
     private final Hacker hacker;
+
     private final Options options;
+
     private final Code code;
+
     private final Finance finance;
+
     private final DateAndTime dateAndTime;
 
     public Faker() {
@@ -53,9 +70,7 @@ public class Faker implements Resolver {
         this.randomService = new RandomService(random);
         this.fakeValuesService = new FakeValuesService(locale, randomService);
         FakeValuesService defaultEnglishFakeValuesService = new FakeValuesService(locale.ENGLISH, randomService);
-        FakeValuesServiceInterface proxiedFakeValueService = createProxiedFakeValuesService(fakeValuesService,
-                defaultEnglishFakeValuesService);
-
+        FakeValuesServiceInterface proxiedFakeValueService = createProxiedFakeValuesService(fakeValuesService, defaultEnglishFakeValuesService);
         this.app = new App(this, proxiedFakeValueService);
         this.lorem = new Lorem(proxiedFakeValueService, randomService);
         this.name = new Name(this, proxiedFakeValueService);
@@ -66,7 +81,7 @@ public class Faker implements Resolver {
         this.book = new Book(this, proxiedFakeValueService);
         this.business = new Business(proxiedFakeValueService);
         this.color = new Color(proxiedFakeValueService);
-        this.company = new Company(this, proxiedFakeValueService);
+        this.company = new Company(this, proxiedFakeValueService, randomService);
         this.hacker = new Hacker(proxiedFakeValueService);
         this.options = new Options(randomService);
         this.code = new Code(randomService);
@@ -74,12 +89,8 @@ public class Faker implements Resolver {
         this.dateAndTime = new DateAndTime(randomService);
     }
 
-    private static FakeValuesServiceInterface createProxiedFakeValuesService(FakeValuesServiceInterface fakeValuesServiceInterface,
-                                                                                      FakeValuesServiceInterface defaultFakeValuesServiceInterface) {
-        return (FakeValuesServiceInterface) Proxy.newProxyInstance(Faker.class.getClassLoader(),
-                new Class[]{FakeValuesServiceInterface.class},
-                new DefaultingFakeValuesService(fakeValuesServiceInterface,
-                                                defaultFakeValuesServiceInterface));
+    private static FakeValuesServiceInterface createProxiedFakeValuesService(FakeValuesServiceInterface fakeValuesServiceInterface, FakeValuesServiceInterface defaultFakeValuesServiceInterface) {
+        return (FakeValuesServiceInterface) Proxy.newProxyInstance(Faker.class.getClassLoader(), new Class[] { FakeValuesServiceInterface.class }, new DefaultingFakeValuesService(fakeValuesServiceInterface, defaultFakeValuesServiceInterface));
     }
 
     /**
@@ -133,7 +144,9 @@ public class Faker implements Resolver {
         return name;
     }
 
-    public Number number() { return number; }
+    public Number number() {
+        return number;
+    }
 
     public Internet internet() {
         return internet;
@@ -197,8 +210,7 @@ public class Faker implements Resolver {
         String[] keySplit = key.split("\\.", 2);
         String object = keySplit[0].toLowerCase();
         String methodName = keySplit[1];
-
-        char[] METHOD_NAME_REPLACEMENT = {'_'};
+        char[] METHOD_NAME_REPLACEMENT = { '_' };
         methodName = WordUtils.capitalizeFully(methodName, METHOD_NAME_REPLACEMENT).replaceAll("_", "");
         methodName = methodName.substring(0, 1).toLowerCase() + methodName.substring(1);
         try {
